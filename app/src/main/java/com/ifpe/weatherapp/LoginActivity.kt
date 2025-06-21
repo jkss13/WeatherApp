@@ -23,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import android.app.Activity
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -87,6 +89,11 @@ fun LoginPage(modifier: Modifier = Modifier) {
         Row(modifier = modifier) {
             Button(
                 onClick = {
+                    activity?.startActivity(
+                        Intent(activity, MainActivity::class.java).setFlags(
+                            FLAG_ACTIVITY_SINGLE_TOP
+                        )
+                    )
                     Toast.makeText(activity, "Login OK!", Toast.LENGTH_LONG).show()
                 },
                 enabled = email.isNotEmpty() && password.isNotEmpty()
