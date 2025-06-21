@@ -13,11 +13,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,6 +55,7 @@ fun RegisterPage(modifier: Modifier = Modifier) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var repeatPassword by rememberSaveable { mutableStateOf("") }
+
     val activity = LocalContext.current as? Activity
     Column(
         modifier = modifier.padding(16.dp).fillMaxSize(),
@@ -71,35 +69,13 @@ fun RegisterPage(modifier: Modifier = Modifier) {
 
         Spacer(modifier = modifier.size(24.dp))
 
-        OutlinedTextField(
-            value = name,
-            label = { Text(text = "Nome") },
-            modifier = modifier.fillMaxWidth(fraction = 0.9f),
-            onValueChange = { name = it }
-        )
+        NameField(value = name, onValueChange = { name = it })
 
-        OutlinedTextField(
-            value = email,
-            label = { Text(text = "E-mail") },
-            modifier = modifier.fillMaxWidth(fraction = 0.9f),
-            onValueChange = { email = it }
-        )
+        EmailField(value = email, onValueChange = { email = it })
 
-        OutlinedTextField(
-            value = password,
-            label = { Text(text = "Escolha uma senha") },
-            modifier = modifier.fillMaxWidth(fraction = 0.9f),
-            onValueChange = { password = it },
-            visualTransformation = PasswordVisualTransformation()
-        )
+        PasswordField(value = password, onValueChange = { password = it })
 
-        OutlinedTextField(
-            value = repeatPassword,
-            label = { Text(text = "Confirmação de senha") },
-            modifier = modifier.fillMaxWidth(fraction = 0.9f),
-            onValueChange = { repeatPassword = it },
-            visualTransformation = PasswordVisualTransformation()
-        )
+        RepeatPasswordField(value = repeatPassword, onValueChange = { repeatPassword = it })
 
         Spacer(modifier = modifier.size(24.dp))
 
@@ -111,14 +87,23 @@ fun RegisterPage(modifier: Modifier = Modifier) {
                             FLAG_ACTIVITY_SINGLE_TOP
                         )
                     )
-                    Toast.makeText(activity, "Cadastro realizado!", Toast.LENGTH_LONG).show()
-                    activity?.finish()
+                        Toast.makeText(activity, "Cadastro realizado!", Toast.LENGTH_LONG).show()
+                        activity?.finish()
                 },
-                enabled = name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && repeatPassword.isNotEmpty() && password.equals(repeatPassword)
+                enabled = name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && repeatPassword.isNotEmpty() && password == repeatPassword
             ) {
                 Text(text = "Confirmar Cadastro")
             }
+        }
 
+        Row(modifier = modifier) {
+            Button(
+                onClick = {
+                    activity?.finish()
+                }
+            ) {
+                Text(text = "Voltar")
+            }
         }
     }
 }

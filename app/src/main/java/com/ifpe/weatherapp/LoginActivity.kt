@@ -16,7 +16,6 @@ import com.ifpe.weatherapp.ui.theme.WeatherAppTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,12 +26,10 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.fillMaxWidth
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +53,7 @@ class LoginActivity : ComponentActivity() {
 fun LoginPage(modifier: Modifier = Modifier) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+
     val activity = LocalContext.current as? Activity
     Column(
         modifier = modifier.padding(16.dp).fillMaxSize(),
@@ -69,20 +67,9 @@ fun LoginPage(modifier: Modifier = Modifier) {
 
         Spacer(modifier = modifier.size(24.dp))
 
-        OutlinedTextField(
-            value = email,
-            label = { Text(text = "Digite seu e-mail") },
-            modifier = modifier.fillMaxWidth(fraction = 0.9f),
-            onValueChange = { email = it }
-        )
+        EmailField(value = email, onValueChange = { email = it })
 
-        OutlinedTextField(
-            value = password,
-            label = { Text(text = "Digite sua senha") },
-            modifier = modifier.fillMaxWidth(fraction = 0.9f),
-            onValueChange = { password = it },
-            visualTransformation = PasswordVisualTransformation()
-        )
+        PasswordField(value = password, onValueChange = { password = it })
 
         Spacer(modifier = modifier.size(24.dp))
 
@@ -104,7 +91,10 @@ fun LoginPage(modifier: Modifier = Modifier) {
             Spacer(modifier = modifier.size(24.dp))
 
             Button(
-                onClick = { email = ""; password = "" }
+                onClick = {
+                    email = ""
+                    password = ""
+                }
             ) {
                 Text("Limpar")
             }
@@ -122,8 +112,6 @@ fun LoginPage(modifier: Modifier = Modifier) {
             ) {
                 Text(text = "Cadastro")
             }
-
         }
-
     }
 }
