@@ -26,7 +26,7 @@ fun ComposableMapPage() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Home",
+            text = "Mapa",
             fontWeight = FontWeight.Bold,
             color = Color.White,
             modifier = Modifier.align(Alignment.CenterHorizontally),
