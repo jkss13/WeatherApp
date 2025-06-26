@@ -30,16 +30,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ifpe.weatherapp.model.City
+import com.ifpe.weatherapp.model.MainViewModel
 
-private fun getCities() = List(20) { i ->
-    City(name = "Cidade $i", weather = "Carregando clima...")
-}
-
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun ComposableListPage(modifier: Modifier = Modifier) {
-    val cityList = remember { getCities().toMutableStateList() }
+fun ComposableListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
+
+    val cityList = viewModel.cities
     val activity = LocalContext.current as? Activity
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -47,12 +46,13 @@ fun ComposableListPage(modifier: Modifier = Modifier) {
     ) {
         items(cityList, key = { it.name }) { city ->
             CityItem(city = city, onClose = {
-                activity?.startActivity(
-                    Intent(activity, activity::class.java).setFlags(
-                        FLAG_ACTIVITY_SINGLE_TOP
-                    )
-                )
-                Toast.makeText(activity, "Fechar OK!", Toast.LENGTH_LONG).show()
+                viewModel.remove(city)
+//                activity?.startActivity(
+//                    Intent(activity, activity::class.java).setFlags(
+//                        FLAG_ACTIVITY_SINGLE_TOP
+//                    )
+//                )
+//                Toast.makeText(activity, "Fechar OK!", Toast.LENGTH_LONG).show()
             }, onClick = {
                 activity?.startActivity(
                     Intent(activity, activity::class.java).setFlags(

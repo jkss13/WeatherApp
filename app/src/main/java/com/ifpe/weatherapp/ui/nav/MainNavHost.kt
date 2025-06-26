@@ -7,12 +7,19 @@ import androidx.navigation.compose.composable
 import com.ifpe.weatherapp.HomePage
 import com.ifpe.weatherapp.ComposableListPage
 import com.ifpe.weatherapp.ComposableMapPage
+import com.ifpe.weatherapp.model.MainViewModel
 
 @Composable
-fun MainNavHost(navController: NavHostController) {
+fun MainNavHost(navController: NavHostController, viewModel: MainViewModel) {
     NavHost(navController, startDestination = Route.Home) {
-        composable<Route.Home> { HomePage()  }
-        composable<Route.List> { ComposableListPage()  }
-        composable<Route.Map>  { ComposableMapPage()   }
+        composable<Route.Home> {
+            HomePage(viewModel = viewModel)
+        }
+        composable<Route.List> {
+            ComposableListPage(viewModel = viewModel)
+        }
+        composable<Route.Map> {
+            ComposableMapPage(viewModel = viewModel)
+        }
     }
 }

@@ -14,10 +14,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.ifpe.weatherapp.model.MainViewModel
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun HomePage() {
+fun HomePage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
+
+    val cityList = viewModel.cities
     Column(
         modifier = Modifier.fillMaxSize()
             .background(Color.Blue)
