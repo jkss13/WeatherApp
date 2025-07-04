@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                             actions = {
                                 IconButton(onClick = {
                                     Firebase.auth.signOut()
-                                    finish()
+//                                    finish()
                                 }) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ExitToApp,
