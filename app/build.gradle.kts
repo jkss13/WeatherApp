@@ -6,7 +6,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
     // Deve vir depois dos outros plugins (Bug)
     id ("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    alias(libs.plugins.google.gms.google.services)
+//    alias(libs.plugins.google.gms.google.services)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -59,6 +60,7 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -74,4 +76,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
     // Google maps for compose
     implementation("com.google.maps.android:maps-compose:2.8.0")
+//    implementation("com.google.firebase:firebase-firestore:26.0.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 }
