@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
@@ -45,6 +46,11 @@ fun ComposableListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) 
             .padding(8.dp)
     ) {
         items(cityList, key = { it.name }) { city ->
+            LaunchedEffect(city.name) {
+                if (city.weather == null) {
+                    viewModel.loadWeather(city.name)
+                }
+            }
             CityItem(city = city, onClose = {
                 viewModel.remove(city)
 //                activity?.startActivity(
@@ -86,7 +92,7 @@ fun CityItem(
                 text = city.name,
                 fontSize = 24.sp)
             Text(modifier = Modifier,
-                text = city.weather?:"Carregando clima...",
+                text = city.weather?.desc?:"carregando...",
                 fontSize = 16.sp)
         }
         IconButton(onClick = onClose) {
