@@ -38,6 +38,7 @@ import android.Manifest
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.ifpe.weatherapp.api.WeatherService
 import com.ifpe.weatherapp.db.fb.FBDatabase
 import com.ifpe.weatherapp.model.MainViewModelFactory
 
@@ -48,8 +49,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val fbDB = remember { FBDatabase() }
+            val weatherService = remember { WeatherService() }
             val viewModel : MainViewModel = viewModel(
-                factory = MainViewModelFactory(fbDB)
+                factory = MainViewModelFactory(fbDB, weatherService)
             )
             val navController = rememberNavController()
             var showDialog by remember { mutableStateOf(false) }

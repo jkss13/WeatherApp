@@ -31,7 +31,8 @@ fun ComposableMapPage(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     GoogleMap (
         modifier = modifier.fillMaxSize(),
         onMapClick = {
-            viewModel.add("Cidade@${it.latitude}:${it.longitude}", location = it)
+//            viewModel.add("Cidade@${it.latitude}:${it.longitude}", location = it)
+            viewModel.add(location = it)
         },
         cameraPositionState = camPosState
     ) {
