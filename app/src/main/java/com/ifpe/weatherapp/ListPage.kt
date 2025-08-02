@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ifpe.weatherapp.model.City
 import com.ifpe.weatherapp.model.MainViewModel
+import com.ifpe.weatherapp.ui.nav.Route
 
 //@Preview(showBackground = true)
 @Composable
@@ -61,6 +62,7 @@ fun ComposableListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) 
 //                Toast.makeText(activity, "Fechar OK!", Toast.LENGTH_LONG).show()
             }, onClick = {
                 viewModel.city = city
+                viewModel.page = Route.Home
                 activity?.startActivity(
                     Intent(activity, activity::class.java).setFlags(
                         FLAG_ACTIVITY_SINGLE_TOP

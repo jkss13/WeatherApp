@@ -11,6 +11,7 @@ import com.ifpe.weatherapp.api.WeatherService
 import com.ifpe.weatherapp.api.toForecast
 import com.ifpe.weatherapp.api.toWeather
 import com.ifpe.weatherapp.db.fb.*
+import com.ifpe.weatherapp.ui.nav.Route
 
 //private fun getCities() = List(20) { i ->
 //    City(name = "Cidade $i", weather = "Carregando clima...")
@@ -30,6 +31,11 @@ class MainViewModel (private val db: FBDatabase,
     private val _user = mutableStateOf<User?> (null)
     val user : User?
         get() = _user.value
+
+    private var _page = mutableStateOf<Route>(Route.Home)
+    var page: Route
+        get() = _page.value
+        set(tmp) { _page.value = tmp }
 
     init {
         db.setListener(this)
