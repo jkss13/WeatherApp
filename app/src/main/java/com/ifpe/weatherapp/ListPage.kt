@@ -60,6 +60,7 @@ fun ComposableListPage(modifier: Modifier = Modifier, viewModel: MainViewModel) 
 //                )
 //                Toast.makeText(activity, "Fechar OK!", Toast.LENGTH_LONG).show()
             }, onClick = {
+                viewModel.city = city
                 activity?.startActivity(
                     Intent(activity, activity::class.java).setFlags(
                         FLAG_ACTIVITY_SINGLE_TOP
