@@ -1,25 +1,23 @@
 package com.ifpe.weatherapp.model
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.model.LatLng
 import com.ifpe.weatherapp.api.WeatherService
 import com.ifpe.weatherapp.api.toForecast
 import com.ifpe.weatherapp.api.toWeather
-import com.ifpe.weatherapp.db.fb.*
+import com.ifpe.weatherapp.repo.Repository
 import com.ifpe.weatherapp.ui.nav.Route
 import com.ifpe.weatherapp.monitor.ForecastMonitor
 import android.content.Context
 
 class MainViewModel(
-    private val db: FBDatabase,
+    private val repository: Repository,
     private val service: WeatherService,
     private val monitor: ForecastMonitor
-) : ViewModel(), FBDatabase.Listener {
+) : ViewModel(), Repository.Listener {
 
     private var _city = mutableStateOf<City?>(null)
     var city: City?
@@ -40,46 +38,45 @@ class MainViewModel(
         set(tmp) { _page.value = tmp }
 
     init {
-        db.setListener(this)
+        repository.setListener(this)
     }
 
     fun update(city: City) {
-        db.update(city.toFBCity())
+        repository.update(city)
         monitor.updateCity(city)
     }
 
     fun remove(city: City) {
-        db.remove(city.toFBCity())
+        repository.remove(city)
         monitor.cancelCity(city)
     }
 
     fun add(name: String, location: LatLng? = null) {
         val newCity = City(name = name, location = location)
-        db.add(newCity.toFBCity())
+        repository.add(newCity)
     }
 
-    override fun onUserLoaded(user: FBUser) {
-        _user.value = user.toUser()
+    override fun onUserLoaded(user: User) {
+        _user.value = user
     }
 
     override fun onUserSignOut() {
         monitor.cancelAll()
     }
 
-    override fun onCityAdded(city: FBCity) {
-        val newCity = city.toCity()
-        _cities[city.name!!] = newCity
-        monitor.updateCity(newCity)
+    override fun onCityAdded(city: City) {
+        _cities[city.name] = city
+        monitor.updateCity(city)
     }
 
-    override fun onCityUpdated(city: FBCity) {
+    override fun onCityUpdated(city: City) {
         val oldCity = _cities[city.name]
         _cities.remove(city.name)
-        val newCity = city.toCity().copy(
+        val newCity = city.copy(
             weather = oldCity?.weather,
             forecast = oldCity?.forecast
         )
-        _cities[city.name!!] = newCity
+        _cities[city.name] = newCity
 
         monitor.updateCity(newCity)
 
@@ -88,7 +85,7 @@ class MainViewModel(
         }
     }
 
-    override fun onCityRemoved(city: FBCity) {
+    override fun onCityRemoved(city: City) {
         val removedCity = _cities[city.name]
         _cities.remove(city.name)
 
@@ -102,7 +99,7 @@ class MainViewModel(
         service.getLocation(name) { lat, lng ->
             if (lat != null && lng != null) {
                 val newCity = City(name = name, location = LatLng(lat, lng))
-                db.add(newCity.toFBCity())
+                repository.add(newCity)
             }
         }
     }
@@ -111,7 +108,7 @@ class MainViewModel(
         service.getName(location.latitude, location.longitude) { name ->
             if (name != null) {
                 val newCity = City(name = name, location = location)
-                db.add(newCity.toFBCity())
+                repository.add(newCity)
             }
         }
     }
@@ -152,14 +149,14 @@ class MainViewModel(
 }
 
 class MainViewModelFactory(
-    private val db: FBDatabase,
+    private val repository: Repository,
     private val service: WeatherService,
     private val context: Context
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             val monitor = ForecastMonitor(context)
-            return MainViewModel(db, service, monitor) as T
+            return MainViewModel(repository, service, monitor) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

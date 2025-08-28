@@ -20,30 +20,32 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.ifpe.weatherapp.model.MainViewModel
-import com.ifpe.weatherapp.ui.nav.BottomNavBar
-import com.ifpe.weatherapp.ui.nav.BottomNavItem
-import com.ifpe.weatherapp.ui.nav.MainNavHost
-import com.ifpe.weatherapp.ui.nav.CityDialog
-import com.ifpe.weatherapp.ui.theme.WeatherAppTheme
-import com.ifpe.weatherapp.ui.nav.Route
-import android.Manifest
-import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.ifpe.weatherapp.api.WeatherService
 import com.ifpe.weatherapp.db.fb.FBDatabase
+import com.ifpe.weatherapp.db.local.LocalDatabase
+import com.ifpe.weatherapp.model.MainViewModel
 import com.ifpe.weatherapp.model.MainViewModelFactory
 import com.ifpe.weatherapp.monitor.ForecastMonitor
+import com.ifpe.weatherapp.repo.Repository
+import com.ifpe.weatherapp.ui.nav.BottomNavBar
+import com.ifpe.weatherapp.ui.nav.BottomNavItem
+import com.ifpe.weatherapp.ui.nav.CityDialog
+import com.ifpe.weatherapp.ui.nav.MainNavHost
+import com.ifpe.weatherapp.ui.nav.Route
+import com.ifpe.weatherapp.ui.theme.WeatherAppTheme
 import java.util.function.Consumer
+import android.Manifest
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -54,22 +56,25 @@ class MainActivity : ComponentActivity() {
             val fbDB = remember { FBDatabase() }
             val weatherService = remember { WeatherService() }
             val forecastMonitor = remember { ForecastMonitor(this@MainActivity) }
-
+            val currentUser = Firebase.auth.currentUser
+            val dbName = "weather_db_${currentUser?.uid ?: "guest"}"
+            val localDB = remember { LocalDatabase(this@MainActivity, dbName) }
+            val repository = remember { Repository(fbDB, localDB) }
             val viewModel: MainViewModel = viewModel(
-                factory = MainViewModelFactory(fbDB, weatherService, this@MainActivity)
+                factory = MainViewModelFactory(repository, weatherService, this@MainActivity)
             )
+
             val navController = rememberNavController()
             var showDialog by remember { mutableStateOf(false) }
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
-            // Usando a função não-composable para obter o nome da rota
             val showButton = currentRoute == getRouteName(Route.List)
 
             val locationPermissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
                 onResult = { isGranted ->
-                    // Handle permission result if needed
+                    // handle permission result if needed
                 }
             )
 
@@ -86,7 +91,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 onDispose {
-                    // Cleanup
+                    // cleanup
                 }
             }
 
@@ -134,7 +139,6 @@ class MainActivity : ComponentActivity() {
                     }
 
                     LaunchedEffect(viewModel.page) {
-                        // Usando a função não-composable para navegação
                         navController.navigate(getRouteName(viewModel.page)) {
                             navController.graph.startDestinationRoute?.let { route ->
                                 popUpTo(route) {
@@ -163,7 +167,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Função auxiliar NÃO-COMPOSABLE para obter o nome da rota
 fun getRouteName(route: Route): String {
     return when (route) {
         is Route.Home -> "Route.Home"
