@@ -11,15 +11,25 @@ import com.ifpe.weatherapp.model.MainViewModel
 
 @Composable
 fun MainNavHost(navController: NavHostController, viewModel: MainViewModel) {
-    NavHost(navController, startDestination = Route.Home) {
-        composable<Route.Home> {
+    NavHost(navController, startDestination = getRouteName(Route.Home)) {
+        composable(getRouteName(Route.Home)) {
             HomePage(viewModel = viewModel)
         }
-        composable<Route.List> {
+        composable(getRouteName(Route.List)) {
             ComposableListPage(viewModel = viewModel)
         }
-        composable<Route.Map> {
+        composable(getRouteName(Route.Map)) {
             ComposableMapPage(viewModel = viewModel)
         }
+    }
+}
+
+// Função auxiliar para obter o nome da rota (deve ser a mesma usada no MainActivity)
+fun getRouteName(route: Route): String {
+    return when (route) {
+        is Route.Home -> "Route.Home"
+        is Route.List -> "Route.List"
+        is Route.Map -> "Route.Map"
+        else -> throw IllegalArgumentException("Rota desconhecida: $route")
     }
 }

@@ -8,12 +8,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
+    val routeName: String
+
     @Serializable
-    data object Home : Route
+    data object Home : Route {
+        override val routeName: String = "home"
+    }
+
     @Serializable
-    data object List : Route
+    data object List : Route {
+        override val routeName: String = "list"
+    }
+
     @Serializable
-    data object Map : Route
+    data object Map : Route {
+        override val routeName: String = "map"
+    }
 }
 sealed class BottomNavItem(
     val title: String,
