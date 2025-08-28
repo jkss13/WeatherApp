@@ -6,7 +6,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -19,11 +18,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import com.ifpe.weatherapp.model.MainViewModel
 import com.ifpe.weatherapp.ui.nav.BottomNavBar
@@ -35,30 +37,60 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ifpe.weatherapp.ui.nav.Route
 import android.Manifest
-import androidx.compose.runtime.LaunchedEffect
+import android.content.Intent
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.ifpe.weatherapp.api.WeatherService
 import com.ifpe.weatherapp.db.fb.FBDatabase
 import com.ifpe.weatherapp.model.MainViewModelFactory
+import com.ifpe.weatherapp.monitor.ForecastMonitor
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        processIntent(intent)
+
         setContent {
             val fbDB = remember { FBDatabase() }
             val weatherService = remember { WeatherService() }
+            val forecastMonitor = remember { ForecastMonitor(this@MainActivity) }
+
             val viewModel : MainViewModel = viewModel(
-                factory = MainViewModelFactory(fbDB, weatherService)
+                factory = MainViewModelFactory(fbDB, weatherService, this@MainActivity)
             )
             val navController = rememberNavController()
             var showDialog by remember { mutableStateOf(false) }
             val currentRoute = navController.currentBackStackEntryAsState()
             val showButton = currentRoute.value?.destination?.hasRoute(Route.List::class) == true
             val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission(), onResult = {} )
+
+            val context = LocalContext.current
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            DisposableEffect(lifecycleOwner) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        (context as? MainActivity)?.let { activity ->
+                            activity.intent?.let { intent ->
+                                processIntent(intent, viewModel)
+                            }
+                        }
+                    }
+                }
+
+                lifecycleOwner.lifecycle.addObserver(observer)
+
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
 
             WeatherAppTheme {
                 Scaffold(
@@ -104,7 +136,6 @@ class MainActivity : ComponentActivity() {
 
                     LaunchedEffect(viewModel.page) {
                         navController.navigate(viewModel.page) {
-                            // Volta pilha de navegação até HomePage (startDest).
                             navController.graph.startDestinationRoute?.let {
                                 popUpTo(it) {
                                     saveState = true
@@ -129,5 +160,26 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun processIntent(intent: Intent?, viewModel: MainViewModel? = null) {
+        intent?.let {
+            if (it.hasExtra("city")) {
+                val cityName = it.getStringExtra("city")
+                cityName?.let { name ->
+                    viewModel?.let { vm ->
+                        val city = vm.cities.find { it.name == name }
+                        vm.city = city
+                        vm.page = Route.Home
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        processIntent(intent)
     }
 }
